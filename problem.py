@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
+import random
 
 class Problem:
     def __init__(self, filename):
@@ -15,6 +16,7 @@ class Problem:
         self.X = np.arange(self.w)
         self.Y = np.arange(self.h)
         self.Z = img 
+        return self.X, self.Y, self.Z
         
     def show(self):
         X, Y = np.meshgrid(self.X, self.Y)
@@ -31,6 +33,23 @@ class Problem:
         self.ax.plot(xs, ys, zs, 'r-', zorder=3, linewidth=0.5)
         plt.show()
 
-            
+    def generate_start_state(self):
+        X = random.choice(self.X)
+        Y = random.choice(self.Y)
+        return [X, Y,random.randint(0,255)]
     
+    def get_evaluation(self, state):
+        return state[2]
+    
+    def get_neighbors(self, state):
+        x, y, z = state
+        neighbors = []
+        for dx in [-1, 0, 1]:
+            for dy in [-1, 0, 1]:
+                new_x = x + dx
+                new_y = y + dy
+                # Check if the new position is within bounds
+                if 0 <= new_x < self.w and 0 <= new_y < self.h:
+                    neighbors.append((new_x, new_y, self.Z[new_y, new_x]))
+        return neighbors
     

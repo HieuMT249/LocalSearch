@@ -4,10 +4,23 @@ import random
 
 
 class LocalSearchStrategy:
-    
     def random_restart_hill_climbing(problem, num_trial):
-        best_path = None
+        best_path = []
         
+        if num_trial > 0:
+            for _ in range(num_trial):
+                current_state = problem.generate_start_state()
+                while True:
+                    neighbors = problem.get_neighbors(current_state)
+                    next_state = max(neighbors, key=problem.get_evaluation)
+                    if problem.get_evaluation(next_state) >= problem.get_evaluation(current_state):
+                        best_path.append(next_state)
+                        break
+                        
+                    current_state = next_state
+        else:
+            print("ERROR!!!")
+            
         return best_path
     
     def simulated_annealing_search(problem, schedule):
@@ -22,10 +35,10 @@ class LocalSearchStrategy:
     
     def run_algorithm(algorithm_name):
         problem = Problem('monalisa.jpg')
-        
+                
         if algorithm_name == 'RRH':
-            num_trials = 0
-            best_path = LocalSearchStrategy.random_restart_hill_climbing(problem, num_trials)
+            num_trial = 10
+            best_path = LocalSearchStrategy.random_restart_hill_climbing(problem, num_trial)
             problem.draw_path(best_path)
             
         elif algorithm_name == 'SAS':
