@@ -29,9 +29,27 @@ class LocalSearchStrategy:
         return best_path
     
     def local_beam_search(problem, k):
-        best_path = None
+        current_states = [problem.generate_start_state() for _ in range(k)]
+        best_states = []
         
-        return best_path
+        while True:
+            next_states = []
+            for state in current_states:
+                neighbors = problem.get_neighbors(state)
+                next_states.extend(neighbors)
+        
+            next_states.sort(key=lambda x: problem.get_evaluation(x), reverse=True)
+            current_states = next_states[:k]
+
+            if (len(best_states) == 0):
+                best_states.append(current_states[0])
+            elif (current_states[0] not in best_states) and ((current_states[0][2] >= state[2]) for state in best_states):
+                
+                best_states.append(current_states[0])
+            else:
+                break
+        
+        return best_states
     
     def run_algorithm(algorithm_name):
         problem = Problem('monalisa.jpg')
@@ -47,7 +65,7 @@ class LocalSearchStrategy:
             problem.draw_path(best_path)
             
         elif algorithm_name == 'LBS':
-            k = 0
+            k = 3
             best_path = LocalSearchStrategy.local_beam_search(problem, k)
             problem.draw_path(best_path)
 

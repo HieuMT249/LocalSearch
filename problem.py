@@ -16,7 +16,6 @@ class Problem:
         self.X = np.arange(self.w)
         self.Y = np.arange(self.h)
         self.Z = img 
-        return self.X, self.Y, self.Z
         
     def show(self):
         X, Y = np.meshgrid(self.X, self.Y)
@@ -34,8 +33,8 @@ class Problem:
         plt.show()
 
     def generate_start_state(self):
-        X = random.choice(self.X)
-        Y = random.choice(self.Y)
+        X = np.random.choice(self.X)
+        Y = np.random.choice(self.Y) 
         return [X, Y,random.randint(0,255)]
     
     def get_evaluation(self, state):
