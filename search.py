@@ -1,5 +1,5 @@
 from problem import Problem
-
+import math
 import random
 
 
@@ -24,9 +24,39 @@ class LocalSearchStrategy:
         return best_path
     
     def simulated_annealing_search(problem, schedule):
-        best_path = None
+        current = problem.generate_start_state()
+        best = current
+        best_path = [current]  # Khởi tạo đường đi với trạng thái bắt đầu
+        time = 0
+        
+        while True:
+            T = schedule(time)
+            if T <= 0:
+                break
+            next_state = random.choice(problem.get_neighbors(current))
+            delta_e = problem.get_evaluation(next_state) - problem.get_evaluation(current)
+            
+            if delta_e > 0:
+                current = next_state
+                if problem.get_evaluation(current) > problem.get_evaluation(best):
+                    best = current
+                    if current in best_path:
+                        best_path = best_path[:best_path.index(current) + 1]  # Cập nhật đường đi tốt nhất
+                    else:
+                        best_path.append(current)
+                if current not in best_path:  # Make sure current is always in best_path
+                    best_path.append(current)
+            elif random.random() < math.exp(delta_e / T):
+                current = next_state
+                if current not in best_path:  # Make sure current is always in best_path
+                    best_path.append(current)
+            
+            time += 1
         
         return best_path
+    
+    def exponential_schedule(t, k=20, lam=0.005, limit=1000):
+        return k * math.exp(-lam * t) if t < limit else 0
     
     def local_beam_search(problem, k):
         current_states = [problem.generate_start_state() for _ in range(k)]
@@ -43,8 +73,7 @@ class LocalSearchStrategy:
 
             if (len(best_path) == 0):
                 best_path.append(current_states[0])
-            elif (current_states[0] not in best_path) and ((current_states[0][2] >= state[2]) for state in best_path):
-                
+            elif (current_states[0] not in best_path) and ((problem.get_evaluation(current_states[0]) >= problem.get_evaluation(state)) for state in best_path):
                 best_path.append(current_states[0])
             else:
                 break
@@ -60,7 +89,7 @@ class LocalSearchStrategy:
             problem.draw_path(best_path)
             
         elif algorithm_name == 'SAS':
-            schedule = 0
+            schedule = LocalSearchStrategy.exponential_schedule # Sử dụng hàm schedule đã định nghĩa
             best_path = LocalSearchStrategy.simulated_annealing_search(problem, schedule)
             problem.draw_path(best_path)
             
